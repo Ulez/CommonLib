@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ulez.bdxflibrary">
+
+    <application>
+        <meta-data
+            android:name="com.baidu.speech.APP_ID"
+            android:value="16218249" />
+        <meta-data
+            android:name="com.baidu.speech.API_KEY"
+            android:value="lVeAyDEuwVrPPOOZuKvN3VzQ" />
+        <meta-data
+            android:name="com.baidu.speech.SECRET_KEY"
+            android:value="XDkr1nYkKah7lGQP2e4peqboxKUjH4GS" />
+
+        <meta-data
+            android:name="IFLYTEK_APPKEY"
+            android:value="'5cf72474'" />
+        <meta-data
+            android:name="IFLYTEK_CHANNEL"
+            android:value="Android_Demo" />
+    </application>
+
+</manifest>
