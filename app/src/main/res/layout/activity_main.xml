@@ -34,8 +34,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <Button
-        android:text="tts"
+        android:text="tts百度"
         android:id="@+id/bt_tts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <Button
+        android:text="tts讯飞"
+        android:id="@+id/bt_tts2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

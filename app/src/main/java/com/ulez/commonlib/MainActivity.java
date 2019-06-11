@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
     private boolean havePermissons = true;
     private Button bt_Tts;
+    private Button bt_Tts2;
     private Handler mainHandler;
     private TtsManager ttsManager;
     private EditText etTts;
@@ -50,11 +51,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         };
         textView = findViewById(R.id.result);
+
         bt_Asr = findViewById(R.id.bt_asr);
         bt_Asr.setOnClickListener(this);
+
         bt_Tts = findViewById(R.id.bt_tts);
-        etTts = findViewById(R.id.et_tts);
         bt_Tts.setOnClickListener(this);
+
+        bt_Tts2 = findViewById(R.id.bt_tts2);
+        bt_Tts2.setOnClickListener(this);
+
+        etTts = findViewById(R.id.et_tts);
 
         int permission;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -96,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.e(TAG, "Exception=" + e.getMessage());
             }
         });
-        ttsManager = TtsManager.getInstance(this, mainHandler);
+        ttsManager = TtsManager.getInstance(this, mainHandler,TtsManager.TTS_BD);
     }
 
     @Override
@@ -109,6 +116,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.bt_tts:
                 ttsManager.speak(etTts.getText().toString());
+                break;
+            case R.id.bt_tts2:
+                ttsManager.speak(etTts.getText().toString(),TtsManager.TTS_XF);
                 break;
         }
     }
