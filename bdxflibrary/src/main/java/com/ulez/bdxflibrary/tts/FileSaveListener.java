@@ -19,9 +19,9 @@ import java.io.IOException;
 public class FileSaveListener extends UiMessageListener {
 
     /**
-     * 保存的文件名 baseName + utteranceId， 通常是 output-0.pcm
+     * 保存的文件名 outName + utteranceId， 通常是 output-0.pcm
      */
-    private String baseName = "output-";
+    public String outName;
 
     /**
      * 保存文件的目录
@@ -54,9 +54,10 @@ public class FileSaveListener extends UiMessageListener {
 
     @Override
     public void onSynthesizeStart(String utteranceId) {
-        String filename = baseName + utteranceId + ".pcm";
+        String filename = outName;
         // 保存的语音文件是 16K采样率 16bits编码 单声道 pcm文件。
         ttsFile = new File(destDir, filename);
+//        Log.e("lcy", ttsFile.getAbsolutePath());
         Log.i(TAG, "try to write audio file to " + ttsFile.getAbsolutePath());
         try {
             if (ttsFile.exists()) {
@@ -74,7 +75,6 @@ public class FileSaveListener extends UiMessageListener {
             throw new RuntimeException(e);
         }
         sendMessage("创建文件成功:" + destDir + "/" + filename);
-
     }
 
     /**

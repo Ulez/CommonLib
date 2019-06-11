@@ -25,7 +25,7 @@ public class OfflineResource {
 
     public static final String VOICE_DUXY = "X";
 
-    private static final String SAMPLE_DIR = "baiduTTS";
+    private static final String SAMPLE_DIR = "bdxfTTS";
 
     private AssetManager assets;
     private String destPath;

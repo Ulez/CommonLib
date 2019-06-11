@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.e(TAG, "Exception=" + e.getMessage());
             }
         });
-        ttsManager = TtsManager.getInstance(this, mainHandler,TtsManager.TTS_BD);
+        ttsManager = TtsManager.getInstance(this, mainHandler, TtsManager.TTS_BD, "bdxfTTS");
     }
 
     @Override
@@ -115,10 +116,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 asrManager.start(audioName);
                 break;
             case R.id.bt_tts:
-                ttsManager.speak(etTts.getText().toString());
+                ttsManager.speak(etTts.getText().toString(), TtsManager.TTS_BD, "output-bd.pcm");
                 break;
             case R.id.bt_tts2:
-                ttsManager.speak(etTts.getText().toString(),TtsManager.TTS_XF);
+                ttsManager.speak(etTts.getText().toString(), TtsManager.TTS_XF, "output-xf.pcm");
                 break;
         }
     }

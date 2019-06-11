@@ -23,6 +23,7 @@ import java.util.Map;
 
 public class MySyntherizer implements MainHandlerConstant {
 
+    private InitConfig initConfig;
     protected SpeechSynthesizer mSpeechSynthesizer;
     protected Context context;
     protected Handler mainHandler;
@@ -36,9 +37,11 @@ public class MySyntherizer implements MainHandlerConstant {
     public MySyntherizer(Context context, InitConfig initConfig, Handler mainHandler) {
         this(context, mainHandler);
         init(initConfig);
+        this.initConfig=initConfig;
     }
-
-
+    public InitConfig getInitConfig() {
+        return initConfig;
+    }
     protected MySyntherizer(Context context, Handler mainHandler) {
         if (isInitied) {
             // SpeechSynthesizer.getInstance() 不要连续调用

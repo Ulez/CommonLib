@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.iflytek.cloud.ErrorCode;
@@ -12,7 +13,6 @@ import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechUtility;
 import com.iflytek.cloud.SynthesizerListener;
-import com.iflytek.sunflower.FlowerCollector;
 import com.ulez.bdxflibrary.util.FileUtil;
 import com.baidu.tts.client.SpeechSynthesizerListener;
 import com.baidu.tts.client.SpeechSynthesizer;
@@ -27,6 +27,7 @@ public class TtsManager {
     private static final String TAG = "TtsManager";
     public static final int TTS_BD = 0;
     public static final int TTS_XF = 1;
+    private final String baseDirs;
     private int ttsType = 0;
     // 引擎类型
     private String mEngineType = SpeechConstant.TYPE_CLOUD;
@@ -41,14 +42,16 @@ public class TtsManager {
     public static TtsManager instance;
     private Handler mainHandler;
     private Context context;
+    private String fileName = null;
 
-    private TtsManager(Context context, Handler mainHandler, int ttsType) {
+    private TtsManager(Context context, Handler mainHandler, int ttsType, String baseDirs) {
         this.context = context.getApplicationContext();
         this.mainHandler = mainHandler;
         this.ttsType = ttsType;
+        this.baseDirs = baseDirs;
         switch (ttsType) {
             case TTS_BD:
-                initBdSynthesizer();
+                initBdSynthesizer(baseDirs);
                 break;
             case TTS_XF:
                 SpeechUtility.createUtility(context, "appid=" + "5cf72474");
@@ -57,10 +60,10 @@ public class TtsManager {
         }
     }
 
-    public static TtsManager getInstance(Context context, Handler mainHandler, int ttsType) {
+    public static TtsManager getInstance(Context context, Handler mainHandler, int ttsType, String baseDirs) {
         if (instance == null) {
             synchronized (TtsManager.class) {
-                instance = new TtsManager(context, mainHandler, ttsType);
+                instance = new TtsManager(context, mainHandler, ttsType, baseDirs);
             }
         }
         return instance;
@@ -69,22 +72,24 @@ public class TtsManager {
     /**
      * 文本转化为语音，播放并且保存录音。
      */
-    public void speak(String text) {
-        speak(text, this.ttsType);
+    public void speak(String text, String fileName) {
+        speak(text, this.ttsType, fileName);
     }
 
     /**
      * 文本转化为语音，播放并且保存录音。
      */
-    public void speak(String text, int ttsType) {
+    public void speak(String text, int ttsType, String fileName) {
+        this.fileName = fileName;
         switch (ttsType) {
             case TTS_BD:
                 // 合成前可以修改参数：
                 // Map<String, String> params = getBdParams();
                 // bdSynthesizer.setParams(params);
                 if (bdSynthesizer == null) {
-                    initBdSynthesizer();
+                    initBdSynthesizer(baseDirs);
                 }
+                ((FileSaveListener) bdSynthesizer.getInitConfig().getListener()).outName = fileName;
                 Log.i(TAG, "bdSynthesizer.speak(text)");
                 int result = bdSynthesizer.speak(text);
                 if (result != 0) {
@@ -211,15 +216,16 @@ public class TtsManager {
         xfSynthesizer.setParameter(SpeechConstant.STREAM_TYPE, "3");
         // 设置播放合成音频打断音乐播放，默认为true
         xfSynthesizer.setParameter(SpeechConstant.KEY_REQUEST_FOCUS, "true");
-
-        // 设置音频保存路径，保存音频格式支持pcm、wav，设置路径为sd卡请注意WRITE_EXTERNAL_STORAGE权限
-        xfSynthesizer.setParameter(SpeechConstant.AUDIO_FORMAT, "pcm");
-        xfSynthesizer.setParameter(SpeechConstant.TTS_AUDIO_PATH, Environment.getExternalStorageDirectory() + "/msc/tts.pcm");
+        if (!TextUtils.isEmpty(fileName)) {
+            // 设置音频保存路径，保存音频格式支持pcm、wav，设置路径为sd卡请注意WRITE_EXTERNAL_STORAGE权限
+            xfSynthesizer.setParameter(SpeechConstant.AUDIO_FORMAT, "pcm");
+            xfSynthesizer.setParameter(SpeechConstant.TTS_AUDIO_PATH, Environment.getExternalStorageDirectory() + "/" + baseDirs + "/" + fileName);
+        }
     }
 
-    private void initBdSynthesizer() {
+    private void initBdSynthesizer(String baseDirs) {
         Log.i(TAG, "initBdSynthesizer");
-        String tmpDir = FileUtil.createTmpDir(context, "baiduTTS");
+        String tmpDir = FileUtil.createTmpDir(context, baseDirs);
         // 设置初始化参数
         // 此处可以改为 含有您业务逻辑的SpeechSynthesizerListener的实现类
         SpeechSynthesizerListener listener = new FileSaveListener(mainHandler, tmpDir);
