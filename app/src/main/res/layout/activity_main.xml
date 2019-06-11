@@ -23,7 +23,16 @@
         android:id="@+id/bt_asr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="识别语音"
+        android:text="百度识别语音"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/result" />
+    <Button
+        android:id="@+id/bt_asr2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="讯飞识别语音"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

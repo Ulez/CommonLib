@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -21,8 +20,7 @@ import com.ulez.bdxflibrary.tts.TtsManager;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
-    TextView textView;
-    Button bt_Asr;
+
     AsrManager asrManager;
     private String[] PERMISSIONS = {
             Manifest.permission.RECORD_AUDIO,
@@ -30,6 +28,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
     private boolean havePermissons = true;
+    private TextView textView;
+    private Button bt_Asr;
+    private Button bt_Asr2;
     private Button bt_Tts;
     private Button bt_Tts2;
     private Handler mainHandler;
@@ -55,6 +56,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         bt_Asr = findViewById(R.id.bt_asr);
         bt_Asr.setOnClickListener(this);
+
+        bt_Asr2 = findViewById(R.id.bt_asr2);
+        bt_Asr2.setOnClickListener(this);
 
         bt_Tts = findViewById(R.id.bt_tts);
         bt_Tts.setOnClickListener(this);
@@ -111,9 +115,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt_asr:
-                textView.setText("请说话...");
+                textView.setText("百度：请说话...");
                 String audioName = FileUtil.ASR_PCM_SAVE_PATH(this) + System.currentTimeMillis() + ".wav";
-                asrManager.start(audioName);
+                asrManager.start(audioName, AsrManager.TYPE_B);
+                break;
+            case R.id.bt_asr2:
+                textView.setText("讯飞：请说话...");
+                String audioName2 = FileUtil.ASR_PCM_SAVE_PATH(this) + System.currentTimeMillis() + ".wav";
+                asrManager.start(audioName2, AsrManager.TYPE_X);
                 break;
             case R.id.bt_tts:
                 ttsManager.speak(etTts.getText().toString(), TtsManager.TTS_BD, "output-bd.pcm");

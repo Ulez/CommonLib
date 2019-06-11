@@ -55,36 +55,44 @@ public class AsrManager {
         this.asrListener = asrListener;
         switch (asrType) {
             case TYPE_B:
-                bdAsr = EventManagerFactory.create(context, "asr");
-                bdAsr.registerListener(bdListener);
+                initBdAsr(context);
                 break;
             case TYPE_X:
-                SpeechUtility.createUtility(context, "appid=" + "5cf72474");
-//                FlowerCollector.onEvent(context, "iat_recognize");
-                //初始化识别无UI识别对象
-//使用SpeechRecognizer对象，可根据回调消息自定义界面；
-                mIat = SpeechRecognizer.createRecognizer(context, mInitListener);
-//设置语法ID和 SUBJECT 为空，以免因之前有语法调用而设置了此参数；或直接清空所有参数，具体可参考 DEMO 的示例。
-                mIat.setParameter(SpeechConstant.CLOUD_GRAMMAR, null);
-                mIat.setParameter(SpeechConstant.SUBJECT, null);
-//设置返回结果格式，目前支持json,xml以及plain 三种格式，其中plain为纯听写文本内容
-                mIat.setParameter(SpeechConstant.RESULT_TYPE, "json");
-//此处engineType为“cloud”
-                mIat.setParameter(SpeechConstant.ENGINE_TYPE, mEngineType);
-//设置语音输入语言，zh_cn为简体中文
-                mIat.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
-//设置结果返回语言
-                mIat.setParameter(SpeechConstant.ACCENT, "mandarin");
-// 设置语音前端点:静音超时时间，单位ms，即用户多长时间不说话则当做超时处理
-//取值范围{1000～10000}
-                mIat.setParameter(SpeechConstant.VAD_BOS, "4000");
-//设置语音后端点:后端点静音检测时间，单位ms，即用户停止说话多长时间内即认为不再输入，
-//自动停止录音，范围{0~10000}
-                mIat.setParameter(SpeechConstant.VAD_EOS, "1000");
-//设置标点符号,设置为"0"返回结果无标点,设置为"1"返回结果有标点
-                mIat.setParameter(SpeechConstant.ASR_PTT, "1");
+                initXfAsr(context);
                 break;
         }
+    }
+
+    private void initXfAsr(Context context) {
+        SpeechUtility.createUtility(context, "appid=" + "5cf72474");
+//                FlowerCollector.onEvent(context, "iat_recognize");
+        //初始化识别无UI识别对象
+//使用SpeechRecognizer对象，可根据回调消息自定义界面；
+        mIat = SpeechRecognizer.createRecognizer(context, mInitListener);
+//设置语法ID和 SUBJECT 为空，以免因之前有语法调用而设置了此参数；或直接清空所有参数，具体可参考 DEMO 的示例。
+        mIat.setParameter(SpeechConstant.CLOUD_GRAMMAR, null);
+        mIat.setParameter(SpeechConstant.SUBJECT, null);
+//设置返回结果格式，目前支持json,xml以及plain 三种格式，其中plain为纯听写文本内容
+        mIat.setParameter(SpeechConstant.RESULT_TYPE, "json");
+//此处engineType为“cloud”
+        mIat.setParameter(SpeechConstant.ENGINE_TYPE, mEngineType);
+//设置语音输入语言，zh_cn为简体中文
+        mIat.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
+//设置结果返回语言
+        mIat.setParameter(SpeechConstant.ACCENT, "mandarin");
+// 设置语音前端点:静音超时时间，单位ms，即用户多长时间不说话则当做超时处理
+//取值范围{1000～10000}
+        mIat.setParameter(SpeechConstant.VAD_BOS, "4000");
+//设置语音后端点:后端点静音检测时间，单位ms，即用户停止说话多长时间内即认为不再输入，
+//自动停止录音，范围{0~10000}
+        mIat.setParameter(SpeechConstant.VAD_EOS, "1000");
+//设置标点符号,设置为"0"返回结果无标点,设置为"1"返回结果有标点
+        mIat.setParameter(SpeechConstant.ASR_PTT, "1");
+    }
+
+    private void initBdAsr(Context context) {
+        bdAsr = EventManagerFactory.create(context, "asr");
+        bdAsr.registerListener(bdListener);
     }
 
     private InitListener mInitListener = new InitListener() {
@@ -184,9 +192,12 @@ public class AsrManager {
     };
     private String outPath = null;
 
-    public void start(String outPath) {
+    public void start(String outPath, int asrType) {
         switch (asrType) {
             case TYPE_B:
+                if (bdAsr == null) {
+                    initBdAsr(context);
+                }
                 Map<String, Object> params = new LinkedHashMap<String, Object>();
                 params.put(com.baidu.speech.asr.SpeechConstant.ACCEPT_AUDIO_VOLUME, false);
                 params.put(com.baidu.speech.asr.SpeechConstant.ACCEPT_AUDIO_DATA, true);
@@ -207,6 +218,9 @@ public class AsrManager {
                 bdAsr.send(com.baidu.speech.asr.SpeechConstant.ASR_START, json, null, 0, 0);
                 break;
             case TYPE_X:
+                if (mIat == null) {
+                    initXfAsr(context);
+                }
                 // 不显示听写对话框
                 // 设置音频保存路径，保存音频格式支持pcm、wav，设置路径为sd卡请注意WRITE_EXTERNAL_STORAGE权限
                 if (!TextUtils.isEmpty(outPath)) {
@@ -221,5 +235,9 @@ public class AsrManager {
                 }
                 break;
         }
+    }
+
+    public void start(String outPath) {
+        start(outPath, asrType);
     }
 }
