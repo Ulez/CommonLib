@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void onSuccessPermission() {
-        asrManager = AsrManager.getInstance(this, AsrManager.TYPE_X, new AsrListener() {
+        asrManager = AsrManager.getInstance(this, AsrManager.TYPE_B, new AsrListener() {
             @Override
             public void onResult(String result, boolean isLast) {
                 Log.e(TAG, "result=" + result + isLast);
@@ -75,7 +75,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.bt:
                 textView.setText(" ");
-                asrManager.start();
+                String audioName = FileUtil.ASR_PCM_SAVE_PATH(this) + System.currentTimeMillis() + ".wav";
+                asrManager.start(audioName);
                 Log.e(TAG, "asrManager.start");
                 break;
         }

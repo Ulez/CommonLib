@@ -2,6 +2,8 @@ package com.ulez.bdxflibrary;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.baidu.speech.EventListener;
@@ -15,7 +17,6 @@ import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.SpeechUtility;
-import com.iflytek.sunflower.FlowerCollector;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +30,7 @@ public class AsrManager {
     public static final int TYPE_B = 0;//百度
     public static final int TYPE_X = 1;//讯飞
     private static AsrManager instance;
+    private final Context context;
     private AsrListener asrListener;
     private int asrType = 0;
     private EventManager bdAsr;
@@ -47,6 +49,7 @@ public class AsrManager {
     }
 
     private AsrManager(Context context, int asrType, final AsrListener asrListener) {
+        this.context = context.getApplicationContext();
         this.asrType = asrType;
         this.asrListener = asrListener;
         switch (asrType) {
@@ -102,8 +105,12 @@ public class AsrManager {
                 if ("asr.partial".equals(name)) {
                     JSONObject jsonObject = new JSONObject(params);
                     String result = jsonObject.getString("result_type");
-                    if ("final_result".equals(result))
+                    if ("final_result".equals(result)) {
                         asrListener.onResult(jsonObject.getString("best_result"), true);
+                    }
+                } else if ("asr.finish".equals(name)) {
+                    FileUtil.pcm2wav(outPath);
+                    outPath = null;
                 }
             } catch (JSONException e) {
                 asrListener.onError(e);
@@ -155,8 +162,8 @@ public class AsrManager {
                 e.printStackTrace();
             }
             mIatResults.put(sn, text);
-            Log.e(TAG,mIatResults.toString());
-            StringBuffer resultBuffer=new StringBuffer();
+            Log.e(TAG, mIatResults.toString());
+            StringBuffer resultBuffer = new StringBuffer();
             for (String key : mIatResults.keySet()) {
                 resultBuffer.append(mIatResults.get(key));
             }
@@ -174,22 +181,37 @@ public class AsrManager {
 
         }
     };
+    private String outPath = null;
 
-    public void start() {
+    public void start(String outPath) {
         switch (asrType) {
             case TYPE_B:
                 Map<String, Object> params = new LinkedHashMap<String, Object>();
                 params.put(com.baidu.speech.asr.SpeechConstant.ACCEPT_AUDIO_VOLUME, false);
                 params.put(com.baidu.speech.asr.SpeechConstant.ACCEPT_AUDIO_DATA, true);
+                FileUtil.createASRFile(outPath, context);
+                if (!TextUtils.isEmpty(outPath)) {
+                    FileUtil.createASRFile(outPath, context);
+                    if (outPath.contains(".wav")) {
+                        this.outPath = outPath.replace(".wav", ".pcm");
+                        params.put(com.baidu.speech.asr.SpeechConstant.OUT_FILE, this.outPath);
+                    }
+                }
                 params.put(com.baidu.speech.asr.SpeechConstant.VAD, com.baidu.speech.asr.SpeechConstant.VAD_DNN);
                 params.put(com.baidu.speech.asr.SpeechConstant.VAD_ENDPOINT_TIMEOUT, 1000);
                 params.put(com.baidu.speech.asr.SpeechConstant.PROP, 20000);
                 params.put(com.baidu.speech.asr.SpeechConstant.PID, 1536); // 中文输入法模型，有逗号
-                String json = new JSONObject(params).toString();
-                bdAsr.send(com.baidu.speech.asr.SpeechConstant.ASR_START, json, null, 0, 0);//开始语音识别；
+                String json = null; // 可以替换成自己的json
+                json = new JSONObject(params).toString(); // 这里可以替换成你需要测试的json
+                bdAsr.send(com.baidu.speech.asr.SpeechConstant.ASR_START, json, null, 0, 0);
                 break;
             case TYPE_X:
                 // 不显示听写对话框
+                // 设置音频保存路径，保存音频格式支持pcm、wav，设置路径为sd卡请注意WRITE_EXTERNAL_STORAGE权限
+                if (!TextUtils.isEmpty(outPath)) {
+                    mIat.setParameter(SpeechConstant.AUDIO_FORMAT, "wav");
+                    mIat.setParameter(SpeechConstant.ASR_AUDIO_PATH, outPath);
+                }
                 ret = mIat.startListening(xfListener);
                 if (ret != ErrorCode.SUCCESS) {
                     Log.e(TAG, "听写失败,错误码：" + ret);
