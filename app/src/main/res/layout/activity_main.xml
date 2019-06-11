@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <TextView
@@ -19,17 +20,23 @@
         app:layout_constraintVertical_bias="0.056" />
 
     <Button
-        android:id="@+id/bt"
+        android:id="@+id/bt_asr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="开始识别语音"
+        android:text="识别语音"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/result" />
+    <EditText
+        android:id="@+id/et_tts"
+        android:text="面向广大开发者永久免费开放语音合成技术。"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <Button
+        android:text="tts"
+        android:id="@+id/bt_tts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

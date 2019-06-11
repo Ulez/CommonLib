@@ -3,21 +3,25 @@ package com.ulez.commonlib;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
-import com.ulez.bdxflibrary.AsrListener;
-import com.ulez.bdxflibrary.AsrManager;
+import com.ulez.bdxflibrary.asr.AsrListener;
+import com.ulez.bdxflibrary.asr.AsrManager;
+import com.ulez.bdxflibrary.tts.TtsManager;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
     TextView textView;
-    Button button;
+    Button bt_Asr;
     AsrManager asrManager;
     private String[] PERMISSIONS = {
             Manifest.permission.RECORD_AUDIO,
@@ -25,14 +29,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
     private boolean havePermissons = true;
+    private Button bt_Tts;
+    private Handler mainHandler;
+    private TtsManager ttsManager;
+    private EditText etTts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mainHandler = new Handler() {
+            /*
+             * @param msg
+             */
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                handle(msg);
+            }
+
+        };
         textView = findViewById(R.id.result);
-        button = findViewById(R.id.bt);
-        button.setOnClickListener(this);
+        bt_Asr = findViewById(R.id.bt_asr);
+        bt_Asr.setOnClickListener(this);
+        bt_Tts = findViewById(R.id.bt_tts);
+        etTts = findViewById(R.id.et_tts);
+        bt_Tts.setOnClickListener(this);
 
         int permission;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -43,6 +65,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         if (havePermissons) onSuccessPermission();
+    }
+
+    protected void handle(Message msg) {
+        int what = msg.what;
+        Log.i(TAG, "arg1=" + msg.arg1);
+        Log.i(TAG, "msg=" + msg.toString());
     }
 
     @Override
@@ -68,16 +96,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.e(TAG, "Exception=" + e.getMessage());
             }
         });
+        ttsManager = TtsManager.getInstance(this, mainHandler);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.bt:
-                textView.setText(" ");
+            case R.id.bt_asr:
+                textView.setText("请说话...");
                 String audioName = FileUtil.ASR_PCM_SAVE_PATH(this) + System.currentTimeMillis() + ".wav";
                 asrManager.start(audioName);
-                Log.e(TAG, "asrManager.start");
+                break;
+            case R.id.bt_tts:
+                ttsManager.speak(etTts.getText().toString());
                 break;
         }
     }
