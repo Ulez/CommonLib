@@ -22,6 +22,7 @@ import com.iflytek.cloud.VoiceWakeuper;
 import com.iflytek.cloud.WakeuperListener;
 import com.iflytek.cloud.WakeuperResult;
 import com.iflytek.cloud.util.ResourceUtil;
+import com.ulez.bdxflibrary.AsrException;
 import com.ulez.bdxflibrary.R;
 import com.ulez.bdxflibrary.util.FileUtil;
 import com.ulez.bdxflibrary.util.JsonParser;
@@ -32,6 +33,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class AsrManager {
     // xf语音唤醒对象
@@ -42,12 +44,15 @@ public class AsrManager {
     private String keep_alive = "1";
     private String ivwNetMode = "0";
 
+    private int asr_status = AsrStatus.ASR_STATUS_ORINGIN;
+
     private final String TAG = "AsrManager";
     public static final int TYPE_B = 0;//百度
     public static final int TYPE_X = 1;//讯飞
     private static AsrManager instance;
     private final Context context;
     private AsrListener asrListener;
+    private WakeListener wakeListener;
     private int asrType = 0;
     private EventManager bdAsr;
     private String mEngineType = SpeechConstant.TYPE_CLOUD;
@@ -55,19 +60,20 @@ public class AsrManager {
     int ret = 0; // 函数调用返回值
     private SpeechRecognizer mIat;
 
-    public static AsrManager getInstance(Context context, int asrType, AsrListener asrListener) {
+    public static AsrManager getInstance(Context context, int asrType, AsrListener asrListener, WakeListener wakeListener) {
         if (instance == null) {
             synchronized (AsrManager.class) {
-                instance = new AsrManager(context, asrType, asrListener);
+                instance = new AsrManager(context, asrType, asrListener, wakeListener);
             }
         }
         return instance;
     }
 
-    private AsrManager(Context context, int asrType, final AsrListener asrListener) {
+    private AsrManager(Context context, int asrType, final AsrListener asrListener, WakeListener wakeListener) {
         this.context = context.getApplicationContext();
         this.asrType = asrType;
         this.asrListener = asrListener;
+        this.wakeListener = wakeListener;
         SpeechUtility.createUtility(context, "appid=" + "5cf72474");
         switch (asrType) {
             case TYPE_B:
@@ -125,19 +131,43 @@ public class AsrManager {
         @Override
         public void onEvent(String name, String params, byte[] data, int offset, int length) {
             try {
-//                Log.e(TAG, "name=" + name + ",,,params=" + params);
-                if ("asr.partial".equals(name)) {
-                    JSONObject jsonObject = new JSONObject(params);
-                    String result = jsonObject.getString("result_type");
-                    if ("final_result".equals(result)) {
-                        asrListener.onResult(jsonObject.getString("best_result"), true);
+                Log.e(TAG, "name=" + name + ",,,params=" + params);
+                try {
+                    if (TextUtils.isEmpty(params)) return;
+                    JSONObject json = new JSONObject(params);
+                    int errorCode = json.getInt("errorCode");
+                    if (errorCode != 0) {
+                        String desc = json.getString("desc");
+                        asrListener.onError(new AsrException(errorCode, desc));
+                        return;
                     }
-                } else if ("asr.finish".equals(name)) {
-                    FileUtil.pcm2wav(outPath);
-                    outPath = null;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                switch (name) {
+                    case "asr.partial":
+                        JSONObject jsonObject = new JSONObject(params);
+                        String result = jsonObject.getString("result_type");
+                        if ("final_result".equals(result)) {
+                            if (asrListener != null)
+                                asrListener.onResult(jsonObject.getString("best_result"), true);
+                        }
+                        break;
+                    case "asr.finish":
+                        FileUtil.pcm2wav(outPath);
+                        outPath = null;
+                        asr_status = AsrStatus.ASR_STATUS_ORINGIN;
+                        break;
+                    case "wp.data":
+                        if (wakeListener != null)
+                            wakeListener.onResult(params);
+                        break;
+                    case "wp.ready":
+                        if (wakeListener != null)
+                            wakeListener.onReady();
+                        break;
                 }
             } catch (JSONException e) {
-                asrListener.onError(e);
                 e.printStackTrace();
             }
         }
@@ -163,7 +193,8 @@ public class AsrManager {
             } else {
                 Log.e(TAG, error.getPlainDescription(true));
             }
-            asrListener.onError(error);
+            if (asrListener != null)
+                asrListener.onError(error);
         }
 
         @Override
@@ -191,7 +222,10 @@ public class AsrManager {
             for (String key : mIatResults.keySet()) {
                 resultBuffer.append(mIatResults.get(key));
             }
-            if (isLast) asrListener.onResult(resultBuffer.toString(), true);
+            if (isLast) {
+                if (asrListener != null)
+                    asrListener.onResult(resultBuffer.toString(), true);
+            }
         }
 
         @Override
@@ -210,6 +244,14 @@ public class AsrManager {
     public void start(String outPath, int asrType) {
         switch (asrType) {
             case TYPE_B:
+                if (asr_status == AsrStatus.ASR_STATUS_ASR_RECORDING) {
+                    return;
+                }
+                if (bdAsr != null && (asr_status == AsrStatus.ASR_STATUS_WAKE_RECORDING)) {
+                    bdAsr.send(com.baidu.speech.asr.SpeechConstant.WAKEUP_STOP, null, null, 0, 0);
+                    bdAsr.unregisterListener(bdListener);
+                    bdAsr = null;
+                }
                 if (bdAsr == null) {
                     initBdAsr(context);
                 }
@@ -230,7 +272,9 @@ public class AsrManager {
                 params.put(com.baidu.speech.asr.SpeechConstant.PID, 1536); // 中文输入法模型，有逗号
                 String json = null; // 可以替换成自己的json
                 json = new JSONObject(params).toString(); // 这里可以替换成你需要测试的json
+
                 bdAsr.send(com.baidu.speech.asr.SpeechConstant.ASR_START, json, null, 0, 0);
+                asr_status = AsrStatus.ASR_STATUS_ASR_RECORDING;
                 break;
             case TYPE_X:
                 if (mIat == null) {
@@ -273,7 +317,26 @@ public class AsrManager {
 
     // TODO: 2019/6/12 百度唤醒初始化等待唤醒
     private void initBdWake() {
-
+        if (asr_status == AsrStatus.ASR_STATUS_WAKE_RECORDING) {
+            return;
+        }
+        if (bdAsr != null && (asr_status == AsrStatus.ASR_STATUS_ASR_RECORDING)) {
+            bdAsr.send(com.baidu.speech.asr.SpeechConstant.ASR_STOP, null, null, 0, 0);
+            bdAsr.unregisterListener(bdListener);
+            bdAsr = null;
+        }
+        bdAsr = EventManagerFactory.create(context, "wp");
+        // 基于SDK唤醒词集成1.3 注册输出事件
+        bdAsr.registerListener(bdListener); //  EventListener 中 onEvent方法
+        Map<String, Object> params = new TreeMap<String, Object>();
+        params.put(com.baidu.speech.asr.SpeechConstant.ACCEPT_AUDIO_VOLUME, false);
+        params.put(com.baidu.speech.asr.SpeechConstant.WP_WORDS_FILE, "assets:///WakeUp.bin");//小度你好
+        params.put(com.baidu.speech.asr.SpeechConstant.APP_ID, "16497560");// TODO: 2019/6/12
+        // "assets:///WakeUp.bin" 表示WakeUp.bin文件定义在assets目录下
+        String json = null; // 这里可以替换成你需要测试的json
+        json = new JSONObject(params).toString();
+        bdAsr.send(com.baidu.speech.asr.SpeechConstant.WAKEUP_START, json, null, 0, 0);
+        asr_status = AsrStatus.ASR_STATUS_WAKE_RECORDING;
     }
 
     private void initXfWake() {
@@ -301,10 +364,11 @@ public class AsrManager {
             // 如有需要，设置 NOTIFY_RECORD_DATA 以实时通过 onEvent 返回录音音频流字节
             //mIvw.setParameter( SpeechConstant.NOTIFY_RECORD_DATA, "1" );
             // 启动唤醒
-            Log.i(TAG,"// 启动唤醒");
+            Log.i(TAG, "// 启动唤醒");
             mIvw.startListening(mWakeuperListener);
         } else {
-            asrListener.onWakeInitError(new RuntimeException("xf唤醒未初始化"));
+            if (wakeListener != null)
+                wakeListener.onWakeInitError(new RuntimeException("xf唤醒未初始化"));
         }
     }
 
@@ -368,7 +432,7 @@ public class AsrManager {
 
 
     private String getResource() {
-        final String resPath = ResourceUtil.generateResourcePath(context, ResourceUtil.RESOURCE_TYPE.assets, "ivw/" + context.getString(R.string.app_id) + ".jet");
+        final String resPath = ResourceUtil.generateResourcePath(context, ResourceUtil.RESOURCE_TYPE.assets, "ivw/" + context.getString(R.string.app_id_xf) + ".jet");
         Log.i(TAG, "resPath: " + resPath);
         return resPath;
     }

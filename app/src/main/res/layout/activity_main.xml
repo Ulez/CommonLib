@@ -7,6 +7,12 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/textWake_bd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="未启动bd唤醒" />
+
     <Button
         android:id="@+id/bt_wake_bd"
         android:layout_width="wrap_content"
@@ -15,9 +21,10 @@
 
     <TextView
         android:id="@+id/textWake"
-        android:text="未启动xf唤醒"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="未启动xf唤醒" />
+
     <Button
         android:id="@+id/bt_wake_xf"
         android:layout_width="wrap_content"

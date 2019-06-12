@@ -4,5 +4,5 @@ public interface AsrListener {
 
     void onError(Exception e);
 
-    void onWakeInitError(RuntimeException e);
+
 }

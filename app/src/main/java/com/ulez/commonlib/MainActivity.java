@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.ulez.bdxflibrary.asr.AsrListener;
 import com.ulez.bdxflibrary.asr.AsrManager;
+import com.ulez.bdxflibrary.asr.WakeListener;
 import com.ulez.bdxflibrary.tts.TtsManager;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TtsManager ttsManager;
     private EditText etTts;
     private TextView wakeText;
+    private TextView wakeTextBd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         };
         textView = findViewById(R.id.result);
         wakeText = findViewById(R.id.textWake);
+        wakeTextBd = findViewById(R.id.textWake_bd);
 
         findViewById(R.id.bt_wake_bd).setOnClickListener(this);
         findViewById(R.id.bt_wake_xf).setOnClickListener(this);
@@ -111,6 +114,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onError(Exception e) {
                 Log.e(TAG, "Exception=" + e.getMessage());
+            }
+        }, new WakeListener() {
+            @Override
+            public void onReady() {
+                Log.i(TAG, "wake onReady");
+                wakeTextBd.setText("请说唤醒词");
+            }
+
+            @Override
+            public void onResult(String result) {
+                Log.i(TAG, "wake onResult=" + result);
+                wakeTextBd.setText("唤醒结果：" + result);
             }
 
             @Override

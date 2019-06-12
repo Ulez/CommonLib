@@ -5,13 +5,13 @@
     <application>
         <meta-data
             android:name="com.baidu.speech.APP_ID"
-            android:value="16218249" />
+            android:value="16497560" />
         <meta-data
             android:name="com.baidu.speech.API_KEY"
-            android:value="lVeAyDEuwVrPPOOZuKvN3VzQ" />
+            android:value="04TI2yM9HfQPSvzfneTtEPuH" />
         <meta-data
             android:name="com.baidu.speech.SECRET_KEY"
-            android:value="XDkr1nYkKah7lGQP2e4peqboxKUjH4GS" />
+            android:value="nl1r0WVYLPa2bSlGcPojeHxWAc19ZjgY" />
 
         <meta-data
             android:name="IFLYTEK_APPKEY"
