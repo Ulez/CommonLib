@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Handler mainHandler;
     private TtsManager ttsManager;
     private EditText etTts;
+    private TextView wakeText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         };
         textView = findViewById(R.id.result);
+        wakeText = findViewById(R.id.textWake);
+
+        findViewById(R.id.bt_wake_bd).setOnClickListener(this);
+        findViewById(R.id.bt_wake_xf).setOnClickListener(this);
 
         bt_Asr = findViewById(R.id.bt_asr);
         bt_Asr.setOnClickListener(this);
@@ -107,6 +112,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onError(Exception e) {
                 Log.e(TAG, "Exception=" + e.getMessage());
             }
+
+            @Override
+            public void onWakeInitError(RuntimeException e) {
+                wakeText.setText(e.getMessage());
+            }
         });
         ttsManager = TtsManager.getInstance(this, mainHandler, TtsManager.TTS_BD, "bdxfTTS");
     }
@@ -114,6 +124,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.bt_wake_bd:
+                asrManager.initWakeUp(AsrManager.TYPE_B);
+                break;
+            case R.id.bt_wake_xf:
+                asrManager.initWakeUp(AsrManager.TYPE_X);
+                break;
             case R.id.bt_asr:
                 textView.setText("百度：请说话...");
                 String audioName = FileUtil.ASR_PCM_SAVE_PATH(this) + System.currentTimeMillis() + ".wav";

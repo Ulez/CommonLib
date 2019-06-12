@@ -7,50 +7,58 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <Button
+        android:id="@+id/bt_wake_bd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="百度唤醒" />
+
+    <TextView
+        android:id="@+id/textWake"
+        android:text="未启动xf唤醒"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/bt_wake_xf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="讯飞唤醒" />
+
     <TextView
         android:id="@+id/result"
         android:layout_width="wrap_content"
         android:layout_height="22dp"
         android:layout_marginBottom="8dp"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.056" />
+        android:text="点击语音识别" />
 
     <Button
         android:id="@+id/bt_asr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="百度识别语音"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result" />
+        android:text="百度识别语音" />
+
     <Button
         android:id="@+id/bt_asr2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="讯飞识别语音"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/result" />
+        android:text="讯飞识别语音" />
+
     <EditText
         android:id="@+id/et_tts"
-        android:text="面向广大开发者永久免费开放语音合成技术。"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="面向广大开发者永久免费开放语音合成技术。" />
+
     <Button
-        android:text="tts百度"
         android:id="@+id/bt_tts"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="tts百度" />
+
     <Button
-        android:text="tts讯飞"
         android:id="@+id/bt_tts2"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="tts讯飞" />
 
 </LinearLayout>

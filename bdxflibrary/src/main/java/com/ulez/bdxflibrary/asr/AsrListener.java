@@ -3,4 +3,6 @@ public interface AsrListener {
     void onResult(String result, boolean isLast);
 
     void onError(Exception e);
+
+    void onWakeInitError(RuntimeException e);
 }

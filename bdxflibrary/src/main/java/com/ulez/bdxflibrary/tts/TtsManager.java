@@ -49,12 +49,12 @@ public class TtsManager {
         this.mainHandler = mainHandler;
         this.ttsType = ttsType;
         this.baseDirs = baseDirs;
+        SpeechUtility.createUtility(context, "appid=" + "5cf72474");
         switch (ttsType) {
             case TTS_BD:
                 initBdSynthesizer(baseDirs);
                 break;
             case TTS_XF:
-                SpeechUtility.createUtility(context, "appid=" + "5cf72474");
                 xfSynthesizer = com.iflytek.cloud.SpeechSynthesizer.createSynthesizer(context, mTtsInitListener);
                 break;
         }
@@ -99,7 +99,6 @@ public class TtsManager {
             case TTS_XF:
                 // 移动数据分析，收集开始合成事件
                 if (xfSynthesizer == null) {
-                    SpeechUtility.createUtility(context, "appid=" + "5cf72474");
                     xfSynthesizer = com.iflytek.cloud.SpeechSynthesizer.createSynthesizer(context, mTtsInitListener);
                 }
                 // 设置参数
