@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Handler mainHandler;
     private TtsManager ttsManager;
     private EditText etTts;
-    private TextView wakeText;
     private TextView wakeTextBd;
 
     @Override
@@ -56,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         };
         textView = findViewById(R.id.result);
-        wakeText = findViewById(R.id.textWake);
         wakeTextBd = findViewById(R.id.textWake_bd);
 
         findViewById(R.id.bt_wake_bd).setOnClickListener(this);
@@ -130,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onWakeInitError(RuntimeException e) {
-                wakeText.setText(e.getMessage());
+                wakeTextBd.setText(e.getMessage());
             }
         });
         ttsManager = TtsManager.getInstance(this, mainHandler, TtsManager.TTS_BD, "bdxfTTS");
@@ -140,10 +138,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt_wake_bd:
-                asrManager.initWakeUp(AsrManager.TYPE_B);
+                asrManager.startWakeUp(AsrManager.TYPE_B);
+                wakeTextBd.setText("唤醒词：百度一下、小度你好");
                 break;
             case R.id.bt_wake_xf:
-                asrManager.initWakeUp(AsrManager.TYPE_X);
+                wakeTextBd.setText("唤醒词：小安小安");
+                asrManager.startWakeUp(AsrManager.TYPE_X);
                 break;
             case R.id.bt_asr:
                 textView.setText("百度：请说话...");

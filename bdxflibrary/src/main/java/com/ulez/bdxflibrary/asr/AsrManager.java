@@ -9,6 +9,7 @@ import android.util.Log;
 import com.baidu.speech.EventListener;
 import com.baidu.speech.EventManager;
 import com.baidu.speech.EventManagerFactory;
+import com.google.gson.Gson;
 import com.iflytek.cloud.ErrorCode;
 import com.iflytek.cloud.InitListener;
 import com.iflytek.cloud.RecognizerListener;
@@ -24,6 +25,7 @@ import com.iflytek.cloud.WakeuperResult;
 import com.iflytek.cloud.util.ResourceUtil;
 import com.ulez.bdxflibrary.AsrException;
 import com.ulez.bdxflibrary.R;
+import com.ulez.bdxflibrary.bean.XfWakeResult;
 import com.ulez.bdxflibrary.util.FileUtil;
 import com.ulez.bdxflibrary.util.JsonParser;
 
@@ -59,6 +61,7 @@ public class AsrManager {
     private String resultType = "json";
     int ret = 0; // 函数调用返回值
     private SpeechRecognizer mIat;
+    private final Gson gson;
 
     public static AsrManager getInstance(Context context, int asrType, AsrListener asrListener, WakeListener wakeListener) {
         if (instance == null) {
@@ -74,6 +77,7 @@ public class AsrManager {
         this.asrType = asrType;
         this.asrListener = asrListener;
         this.wakeListener = wakeListener;
+        gson = new Gson();
         SpeechUtility.createUtility(context, "appid=" + "5cf72474");
         switch (asrType) {
             case TYPE_B:
@@ -300,23 +304,23 @@ public class AsrManager {
         start(outPath, asrType);
     }
 
-    public void initWakeUp(int asrType) {
+    public void startWakeUp(int asrType) {
         switch (asrType) {
             case TYPE_B:
-                initBdWake();
+                startBdWake();
                 break;
             case TYPE_X:
-                initXfWake();
+                startXfWake();
                 break;
         }
     }
 
-    public void initWakeUp() {
-        initWakeUp(asrType);
+    public void startWakeUp() {
+        startWakeUp(asrType);
     }
 
     // TODO: 2019/6/12 百度唤醒初始化等待唤醒
-    private void initBdWake() {
+    private void startBdWake() {
         if (asr_status == AsrStatus.ASR_STATUS_WAKE_RECORDING) {
             return;
         }
@@ -339,11 +343,10 @@ public class AsrManager {
         asr_status = AsrStatus.ASR_STATUS_WAKE_RECORDING;
     }
 
-    private void initXfWake() {
+    private void startXfWake() {
         mIvw = VoiceWakeuper.createWakeuper(context, null);
         mIvw = VoiceWakeuper.getWakeuper();
         if (mIvw != null) {
-            Log.i(TAG, "setRadioEnable(false)");
             resultString = "";
 //            textView.setText(resultString);
             // 清空参数
@@ -380,28 +383,14 @@ public class AsrManager {
             if (!"1".equalsIgnoreCase(keep_alive)) {
                 Log.i(TAG, "setRadioEnable true");
             }
-            try {
-                String text = result.getResultString();
-                JSONObject object;
-                object = new JSONObject(text);
-                StringBuffer buffer = new StringBuffer();
-                buffer.append("【RAW】 " + text);
-                buffer.append("\n");
-                buffer.append("【操作类型】" + object.optString("sst"));
-                buffer.append("\n");
-                buffer.append("【唤醒词id】" + object.optString("id"));
-                buffer.append("\n");
-                buffer.append("【得分】" + object.optString("score"));
-                buffer.append("\n");
-                buffer.append("【前端点】" + object.optString("bos"));
-                buffer.append("\n");
-                buffer.append("【尾端点】" + object.optString("eos"));
-                resultString = buffer.toString();
-            } catch (JSONException e) {
+            String text = result.getResultString();
+            XfWakeResult xfWakeResult = gson.fromJson(text, XfWakeResult.class);
+            if (xfWakeResult != null) {
+                resultString = xfWakeResult.toString();
+            } else {
                 resultString = "结果解析出错";
-                e.printStackTrace();
             }
-            Log.i(TAG, "resultString=" + resultString);
+            wakeListener.onResult(resultString);
         }
 
         @Override
