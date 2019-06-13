@@ -178,6 +178,17 @@ public class TtsManager {
         }
     }
 
+    public void release() {
+        if (bdSynthesizer != null) {
+            bdSynthesizer.release();
+            bdSynthesizer = null;
+        }
+        if (xfSynthesizer != null) {
+            xfSynthesizer.destroy();
+            xfSynthesizer = null;
+        }
+    }
+
     public void stop() {
         stop(this.ttsType);
     }
