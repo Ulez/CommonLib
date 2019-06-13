@@ -50,16 +50,63 @@
         android:layout_height="wrap_content"
         android:text="面向广大开发者永久免费开放语音合成技术。" />
 
-    <Button
-        android:id="@+id/bt_tts"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="tts百度" />
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/bt_tts2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="tts讯飞" />
+        <Button
+            android:id="@+id/bt_tts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="tts百度合成播放" />
 
+        <Button
+            android:id="@+id/bt_tts_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="播放暂停" />
+
+        <Button
+            android:id="@+id/bt_tts_resume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="播放恢复" />
+
+        <Button
+            android:id="@+id/bt_tts_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="停止合成" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/bt_tts2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="tts讯飞合成播放" />
+
+        <Button
+            android:id="@+id/bt_tts2_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="播放暂停" />
+
+        <Button
+            android:id="@+id/bt_tts2_resume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="播放恢复" />
+
+        <Button
+            android:id="@+id/bt_tts2_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="停止合成" />
+    </LinearLayout>
 </LinearLayout>

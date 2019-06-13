@@ -77,6 +77,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         etTts = findViewById(R.id.et_tts);
 
+        findViewById(R.id.bt_tts_pause).setOnClickListener(this);
+        findViewById(R.id.bt_tts_resume).setOnClickListener(this);
+        findViewById(R.id.bt_tts_stop).setOnClickListener(this);
+
+        findViewById(R.id.bt_tts2_pause).setOnClickListener(this);
+        findViewById(R.id.bt_tts2_resume).setOnClickListener(this);
+        findViewById(R.id.bt_tts2_stop).setOnClickListener(this);
+
         int permission;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             permission = checkSelfPermission(Manifest.permission.RECORD_AUDIO);
@@ -134,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 wakeTextBd.setText(e.getMessage());
             }
         });
-        ttsManager = TtsManager.getInstance(this, mainHandler, TtsManager.TTS_BD, "bdxfTTS",new TtsListener(){
+        ttsManager = TtsManager.getInstance(this, mainHandler, TtsManager.TTS_BD, "bdxfTTS", new TtsListener() {
 
             @Override
             public void onResult(String result) {
@@ -148,8 +156,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private void T(String s){
-        Toast.makeText(this,s,Toast.LENGTH_SHORT).show();
+    private void T(String s) {
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -178,6 +186,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.bt_tts2:
                 ttsManager.speak(etTts.getText().toString(), TtsManager.TTS_XF, "output-xf.pcm");
+                break;
+            case R.id.bt_tts_pause:
+            case R.id.bt_tts2_pause:
+                ttsManager.pause();
+                break;
+            case R.id.bt_tts_resume:
+            case R.id.bt_tts2_resume:
+                ttsManager.resume();
+                break;
+            case R.id.bt_tts_stop:
+            case R.id.bt_tts2_stop:
+                ttsManager.stop();
                 break;
         }
     }

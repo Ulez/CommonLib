@@ -86,6 +86,7 @@ public class TtsManager {
         this.fileName = fileName;
         switch (ttsType) {
             case TTS_BD:
+
                 // 合成前可以修改参数：
                 // Map<String, String> params = getBdParams();
                 // bdSynthesizer.setParams(params);
@@ -95,6 +96,7 @@ public class TtsManager {
                 ((FileSaveListener) bdSynthesizer.getInitConfig().getListener()).outName = fileName;
                 KLog.i(TAG, "bdSynthesizer.speak(text)");
                 int result = bdSynthesizer.speak(text);
+                this.ttsType = TTS_BD;
                 if (result != 0) {
                     KLog.e(TAG, "error code :" + result + " method:speak" + ", 错误码文档:http://yuyin.baidu.com/docs/tts/122 ");
                 }
@@ -107,6 +109,7 @@ public class TtsManager {
                 // 设置参数
                 setXfParam();
                 int code = xfSynthesizer.startSpeaking(text, xfTtsListener);
+                this.ttsType = TTS_XF;
 //			/**
 //			 * 只保存音频不进行播放接口,调用此接口请注释startSpeaking接口
 //			 * text:要合成的文本，uri:需要保存的音频全路径，listener:回调接口
@@ -119,6 +122,69 @@ public class TtsManager {
                         ttsListener.onError(new TtsException(code, "xf语音合成失败,错误码: " + code));
                 }
                 break;
+        }
+    }
+
+    /**
+     * 暂停播放。仅调用speak后生效
+     */
+    public void pause(int ttsType) {
+        switch (ttsType) {
+            case TTS_BD:
+                int result = bdSynthesizer.pause();
+                checkResult(result, "pause");
+                break;
+            case TTS_XF:
+                xfSynthesizer.pauseSpeaking();
+                break;
+        }
+    }
+
+    public void pause() {
+        pause(this.ttsType);
+    }
+
+    /**
+     * 继续播放。仅调用speak后生效，调用pause生效
+     */
+    public void resume(int ttsType) {
+        switch (ttsType) {
+            case TTS_BD:
+                int result = bdSynthesizer.resume();
+                checkResult(result, "resume");
+                break;
+            case TTS_XF:
+                xfSynthesizer.resumeSpeaking();
+                break;
+        }
+    }
+
+    public void resume() {
+        resume(this.ttsType);
+    }
+
+    /*
+     * 停止合成引擎。即停止播放，合成，清空内部合成队列。
+     */
+    public void stop(int ttsType) {
+        switch (ttsType) {
+            case TTS_BD:
+                int result = bdSynthesizer.stop();
+                checkResult(result, "stop");
+                break;
+            case TTS_XF:
+                xfSynthesizer.stopSpeaking();
+                break;
+        }
+    }
+
+    public void stop() {
+        stop(this.ttsType);
+    }
+
+    private void checkResult(int result, String method) {
+        if (result != 0 && ttsListener != null) {
+            ttsListener.onError(new TtsException(result, " method:" + method + ", 错误码文档:http://yuyin.baidu.com/docs/tts/122 "));
         }
     }
 
