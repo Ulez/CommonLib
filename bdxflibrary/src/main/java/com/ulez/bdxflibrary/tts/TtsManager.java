@@ -13,6 +13,7 @@ import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechUtility;
 import com.iflytek.cloud.SynthesizerListener;
+import com.iflytek.cloud.util.ResourceUtil;
 import com.socks.library.KLog;
 import com.ulez.bdxflibrary.TtsException;
 import com.ulez.bdxflibrary.util.FileUtil;
@@ -39,12 +40,17 @@ public class TtsManager {
     protected TtsMode ttsMode = TtsMode.MIX;
     protected String offlineVoice = OfflineResource.VOICE_MALE;
     protected MySyntherizer bdSynthesizer = null;
+    // 默认云端发音人
     private String voicer = "xiaoyan";
+    // 默认本地发音人
+    public static String voicerLocal = "xiaofeng";
+
     private com.iflytek.cloud.SpeechSynthesizer xfSynthesizer = null;
     public static TtsManager instance;
     private Handler mainHandler;
     private Context context;
     private String fileName = null;
+    private String text;
 
     private TtsManager(Context context, Handler mainHandler, int ttsType, String baseDirs, TtsListener ttsListener) {
         this.context = context.getApplicationContext();
@@ -86,7 +92,6 @@ public class TtsManager {
         this.fileName = fileName;
         switch (ttsType) {
             case TTS_BD:
-
                 // 合成前可以修改参数：
                 // Map<String, String> params = getBdParams();
                 // bdSynthesizer.setParams(params);
@@ -102,27 +107,33 @@ public class TtsManager {
                 }
                 break;
             case TTS_XF:
-                // 移动数据分析，收集开始合成事件
-                if (xfSynthesizer == null) {
-                    xfSynthesizer = com.iflytek.cloud.SpeechSynthesizer.createSynthesizer(context, mTtsInitListener);
-                }
-                // 设置参数
-                setXfParam();
-                int code = xfSynthesizer.startSpeaking(text, xfTtsListener);
-                this.ttsType = TTS_XF;
+                this.text = text;
+                startXfTts(text);
+                break;
+        }
+    }
+
+    private void startXfTts(String text) {
+        // 移动数据分析，收集开始合成事件
+        if (xfSynthesizer == null) {
+            xfSynthesizer = com.iflytek.cloud.SpeechSynthesizer.createSynthesizer(context, mTtsInitListener);
+        }
+        // 设置参数
+        setXfParam();
+        int code = xfSynthesizer.startSpeaking(text, xfTtsListener);
+        this.ttsType = TTS_XF;
 //			/**
 //			 * 只保存音频不进行播放接口,调用此接口请注释startSpeaking接口
 //			 * text:要合成的文本，uri:需要保存的音频全路径，listener:回调接口
 //			*/
 			/*String path = Environment.getExternalStorageDirectory()+"/tts.pcm";
 			int code = xfSynthesizer.synthesizeToUri(text, path, xfTtsListener);*/
-                if (code != ErrorCode.SUCCESS) {
-                    KLog.e(TAG, "语音合成失败,错误码: " + code);
-                    if (ttsListener != null)
-                        ttsListener.onError(new TtsException(code, "xf语音合成失败,错误码: " + code));
-                }
-                break;
+        if (code != ErrorCode.SUCCESS) {
+            KLog.e(TAG, "语音合成失败,错误码: " + code);
+            if (ttsListener != null)
+                ttsListener.onError(new TtsException(code, "xf语音合成失败,错误码: " + code));
         }
+        // TODO: 2019/6/13
     }
 
     /**
@@ -173,6 +184,7 @@ public class TtsManager {
                 checkResult(result, "stop");
                 break;
             case TTS_XF:
+                mEngineType = SpeechConstant.TYPE_CLOUD;
                 xfSynthesizer.stopSpeaking();
                 break;
         }
@@ -243,6 +255,10 @@ public class TtsManager {
                     ttsListener.onError(new TtsException(1, error.getPlainDescription(true)));
                 }
                 KLog.i(TAG, error.getPlainDescription(true));
+                if (error.getErrorCode() == 20001) {
+                    mEngineType = SpeechConstant.TYPE_LOCAL;
+                    retry();
+                }
             }
         }
 
@@ -263,6 +279,11 @@ public class TtsManager {
 
         }
     };
+
+    private void retry() {
+        startXfTts(text);
+    }
+
     private InitListener mTtsInitListener = new InitListener() {
         @Override
         public void onInit(int code) {
@@ -293,9 +314,15 @@ public class TtsManager {
             xfSynthesizer.setParameter(SpeechConstant.PITCH, "50");
             //设置合成音量
             xfSynthesizer.setParameter(SpeechConstant.VOLUME, "50");
+            KLog.e(voicer);
         } else {
+            //设置使用本地引擎
             xfSynthesizer.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_LOCAL);
-            xfSynthesizer.setParameter(SpeechConstant.VOICE_NAME, "");
+            //设置发音人资源路径
+            xfSynthesizer.setParameter(ResourceUtil.TTS_RES_PATH, getResourcePath());
+            //设置发音人
+            KLog.e(voicerLocal);
+            xfSynthesizer.setParameter(SpeechConstant.VOICE_NAME, voicerLocal);
         }
         //设置播放器音频流类型
         xfSynthesizer.setParameter(SpeechConstant.STREAM_TYPE, "3");
@@ -306,6 +333,18 @@ public class TtsManager {
             xfSynthesizer.setParameter(SpeechConstant.AUDIO_FORMAT, "pcm");
             xfSynthesizer.setParameter(SpeechConstant.TTS_AUDIO_PATH, Environment.getExternalStorageDirectory() + "/" + baseDirs + "/" + fileName);
         }
+    }
+
+
+    //获取发音人资源路径
+    private String getResourcePath() {
+        StringBuffer tempBuffer = new StringBuffer();
+        //合成通用资源
+        tempBuffer.append(ResourceUtil.generateResourcePath(context, ResourceUtil.RESOURCE_TYPE.assets, "tts/common.jet"));
+        tempBuffer.append(";");
+        //发音人资源
+        tempBuffer.append(ResourceUtil.generateResourcePath(context, ResourceUtil.RESOURCE_TYPE.assets, "tts/" + voicerLocal + ".jet"));
+        return tempBuffer.toString();
     }
 
     private void initBdSynthesizer(String baseDirs) {
