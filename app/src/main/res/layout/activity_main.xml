@@ -57,24 +57,28 @@
 
         <Button
             android:id="@+id/bt_tts"
+            style="@style/bt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="tts百度合成播放" />
 
         <Button
             android:id="@+id/bt_tts_pause"
+            style="@style/bt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="播放暂停" />
 
         <Button
             android:id="@+id/bt_tts_resume"
+            style="@style/bt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="播放恢复" />
 
         <Button
             android:id="@+id/bt_tts_stop"
+            style="@style/bt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="停止合成" />
@@ -87,24 +91,28 @@
 
         <Button
             android:id="@+id/bt_tts2"
+            style="@style/bt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="tts讯飞合成播放" />
 
         <Button
             android:id="@+id/bt_tts2_pause"
+            style="@style/bt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="播放暂停" />
 
         <Button
             android:id="@+id/bt_tts2_resume"
+            style="@style/bt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="播放恢复" />
 
         <Button
             android:id="@+id/bt_tts2_stop"
+            style="@style/bt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="停止合成" />
