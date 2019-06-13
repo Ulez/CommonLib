@@ -107,6 +107,7 @@ public class TtsManager {
                 }
                 break;
             case TTS_XF:
+                mEngineType = SpeechConstant.TYPE_CLOUD;
                 this.text = text;
                 startXfTts(text);
                 break;
@@ -184,7 +185,6 @@ public class TtsManager {
                 checkResult(result, "stop");
                 break;
             case TTS_XF:
-                mEngineType = SpeechConstant.TYPE_CLOUD;
                 xfSynthesizer.stopSpeaking();
                 break;
         }
