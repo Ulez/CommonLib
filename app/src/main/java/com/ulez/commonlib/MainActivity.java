@@ -12,10 +12,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.ulez.bdxflibrary.TtsException;
 import com.ulez.bdxflibrary.asr.AsrListener;
 import com.ulez.bdxflibrary.asr.AsrManager;
 import com.ulez.bdxflibrary.asr.WakeListener;
+import com.ulez.bdxflibrary.tts.TtsListener;
 import com.ulez.bdxflibrary.tts.TtsManager;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -131,7 +134,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 wakeTextBd.setText(e.getMessage());
             }
         });
-        ttsManager = TtsManager.getInstance(this, mainHandler, TtsManager.TTS_BD, "bdxfTTS");
+        ttsManager = TtsManager.getInstance(this, mainHandler, TtsManager.TTS_BD, "bdxfTTS",new TtsListener(){
+
+            @Override
+            public void onResult(String result) {
+
+            }
+
+            @Override
+            public void onError(TtsException e) {
+                T(e.getMessage());
+            }
+        });
+    }
+
+    private void T(String s){
+        Toast.makeText(this,s,Toast.LENGTH_SHORT).show();
     }
 
     @Override

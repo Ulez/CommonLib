@@ -23,6 +23,7 @@ import com.iflytek.cloud.VoiceWakeuper;
 import com.iflytek.cloud.WakeuperListener;
 import com.iflytek.cloud.WakeuperResult;
 import com.iflytek.cloud.util.ResourceUtil;
+import com.socks.library.KLog;
 import com.ulez.bdxflibrary.AsrException;
 import com.ulez.bdxflibrary.R;
 import com.ulez.bdxflibrary.bean.XfWakeResult;
@@ -126,7 +127,7 @@ public class AsrManager {
         public void onInit(int code) {
             Log.d(TAG, "SpeechRecognizer init() code = " + code);
             if (code != ErrorCode.SUCCESS) {
-                Log.e(TAG, "初始化失败，错误码：" + code);
+                KLog.e(TAG, "初始化失败，错误码：" + code);
             }
         }
     };
@@ -135,7 +136,7 @@ public class AsrManager {
         @Override
         public void onEvent(String name, String params, byte[] data, int offset, int length) {
             try {
-                Log.e(TAG, "name=" + name + ",,,params=" + params);
+                KLog.e(TAG, "name=" + name + ",,,params=" + params);
                 try {
                     if (TextUtils.isEmpty(params)) return;
                     JSONObject json = new JSONObject(params);
@@ -182,7 +183,7 @@ public class AsrManager {
         @Override
         public void onBeginOfSpeech() {
             // 此回调表示：sdk内部录音机已经准备好了，用户可以开始语音输入
-            Log.e(TAG, "开始说话");
+            KLog.e(TAG, "开始说话");
             if (mIatResults == null)
                 mIatResults = new LinkedHashMap<String, String>();
             mIatResults.clear();
@@ -193,9 +194,9 @@ public class AsrManager {
             // Tips：
             // 错误码：10118(您没有说话)，可能是录音机权限被禁，需要提示用户打开应用的录音权限。
             if (error.getErrorCode() == 14002) {
-                Log.e(TAG, error.getPlainDescription(true) + "\n请确认是否已开通翻译功能");
+                KLog.e(TAG, error.getPlainDescription(true) + "\n请确认是否已开通翻译功能");
             } else {
-                Log.e(TAG, error.getPlainDescription(true));
+                KLog.e(TAG, error.getPlainDescription(true));
             }
             if (asrListener != null)
                 asrListener.onError(error);
@@ -204,7 +205,7 @@ public class AsrManager {
         @Override
         public void onEndOfSpeech() {
             // 此回调表示：检测到了语音的尾端点，已经进入识别过程，不再接受语音输入
-            Log.e(TAG, "结束说话");
+            KLog.e(TAG, "结束说话");
         }
 
         @Override
@@ -221,7 +222,7 @@ public class AsrManager {
                 e.printStackTrace();
             }
             mIatResults.put(sn, text);
-            Log.e(TAG, mIatResults.toString());
+            KLog.e(TAG, mIatResults.toString());
             StringBuffer resultBuffer = new StringBuffer();
             for (String key : mIatResults.keySet()) {
                 resultBuffer.append(mIatResults.get(key));
@@ -234,7 +235,7 @@ public class AsrManager {
 
         @Override
         public void onVolumeChanged(int volume, byte[] data) {
-//            Log.e(TAG, "当前正在说话，音量大小：" + volume);
+//            KLog.e(TAG, "当前正在说话，音量大小：" + volume);
 //            Log.d(TAG, "返回音频数据：" + data.length);
         }
 
@@ -292,9 +293,9 @@ public class AsrManager {
                 }
                 ret = mIat.startListening(xfListener);
                 if (ret != ErrorCode.SUCCESS) {
-                    Log.e(TAG, "听写失败,错误码：" + ret);
+                    KLog.e(TAG, "听写失败,错误码：" + ret);
                 } else {
-                    Log.e(TAG, "请开始说话…");
+                    KLog.e(TAG, "请开始说话…");
                 }
                 break;
         }
@@ -367,7 +368,7 @@ public class AsrManager {
             // 如有需要，设置 NOTIFY_RECORD_DATA 以实时通过 onEvent 返回录音音频流字节
             //mIvw.setParameter( SpeechConstant.NOTIFY_RECORD_DATA, "1" );
             // 启动唤醒
-            Log.i(TAG, "// 启动唤醒");
+            KLog.i(TAG, "// 启动唤醒");
             mIvw.startListening(mWakeuperListener);
         } else {
             if (wakeListener != null)
@@ -381,7 +382,7 @@ public class AsrManager {
         public void onResult(WakeuperResult result) {
             Log.d(TAG, "onResult");
             if (!"1".equalsIgnoreCase(keep_alive)) {
-                Log.i(TAG, "setRadioEnable true");
+                KLog.i(TAG, "setRadioEnable true");
             }
             String text = result.getResultString();
             XfWakeResult xfWakeResult = gson.fromJson(text, XfWakeResult.class);
@@ -395,7 +396,7 @@ public class AsrManager {
 
         @Override
         public void onError(SpeechError error) {
-            Log.e(TAG, error.getPlainDescription(true));
+            KLog.e(TAG, error.getPlainDescription(true));
         }
 
         @Override
@@ -408,7 +409,7 @@ public class AsrManager {
                 // EVENT_RECORD_DATA 事件仅在 NOTIFY_RECORD_DATA 参数值为 真 时返回
                 case SpeechEvent.EVENT_RECORD_DATA:
                     final byte[] audio = obj.getByteArray(SpeechEvent.KEY_EVENT_RECORD_DATA);
-                    Log.i(TAG, "ivw audio length: " + audio.length);
+                    KLog.i(TAG, "ivw audio length: " + audio.length);
                     break;
             }
         }
@@ -422,7 +423,7 @@ public class AsrManager {
 
     private String getResource() {
         final String resPath = ResourceUtil.generateResourcePath(context, ResourceUtil.RESOURCE_TYPE.assets, "ivw/" + context.getString(R.string.app_id_xf) + ".jet");
-        Log.i(TAG, "resPath: " + resPath);
+        KLog.i(TAG, "resPath: " + resPath);
         return resPath;
     }
 

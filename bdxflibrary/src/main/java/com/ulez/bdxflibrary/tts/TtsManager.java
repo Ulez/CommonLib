@@ -13,6 +13,8 @@ import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechUtility;
 import com.iflytek.cloud.SynthesizerListener;
+import com.socks.library.KLog;
+import com.ulez.bdxflibrary.TtsException;
 import com.ulez.bdxflibrary.util.FileUtil;
 import com.baidu.tts.client.SpeechSynthesizerListener;
 import com.baidu.tts.client.SpeechSynthesizer;
@@ -44,11 +46,12 @@ public class TtsManager {
     private Context context;
     private String fileName = null;
 
-    private TtsManager(Context context, Handler mainHandler, int ttsType, String baseDirs) {
+    private TtsManager(Context context, Handler mainHandler, int ttsType, String baseDirs, TtsListener ttsListener) {
         this.context = context.getApplicationContext();
         this.mainHandler = mainHandler;
         this.ttsType = ttsType;
         this.baseDirs = baseDirs;
+        this.ttsListener = ttsListener;
         SpeechUtility.createUtility(context, "appid=" + "5cf72474");
         switch (ttsType) {
             case TTS_BD:
@@ -60,10 +63,10 @@ public class TtsManager {
         }
     }
 
-    public static TtsManager getInstance(Context context, Handler mainHandler, int ttsType, String baseDirs) {
+    public static TtsManager getInstance(Context context, Handler mainHandler, int ttsType, String baseDirs, TtsListener ttsListener) {
         if (instance == null) {
             synchronized (TtsManager.class) {
-                instance = new TtsManager(context, mainHandler, ttsType, baseDirs);
+                instance = new TtsManager(context, mainHandler, ttsType, baseDirs, ttsListener);
             }
         }
         return instance;
@@ -90,10 +93,10 @@ public class TtsManager {
                     initBdSynthesizer(baseDirs);
                 }
                 ((FileSaveListener) bdSynthesizer.getInitConfig().getListener()).outName = fileName;
-                Log.i(TAG, "bdSynthesizer.speak(text)");
+                KLog.i(TAG, "bdSynthesizer.speak(text)");
                 int result = bdSynthesizer.speak(text);
                 if (result != 0) {
-                    Log.e(TAG, "error code :" + result + " method:speak" + ", 错误码文档:http://yuyin.baidu.com/docs/tts/122 ");
+                    KLog.e(TAG, "error code :" + result + " method:speak" + ", 错误码文档:http://yuyin.baidu.com/docs/tts/122 ");
                 }
                 break;
             case TTS_XF:
@@ -111,12 +114,15 @@ public class TtsManager {
 			/*String path = Environment.getExternalStorageDirectory()+"/tts.pcm";
 			int code = xfSynthesizer.synthesizeToUri(text, path, xfTtsListener);*/
                 if (code != ErrorCode.SUCCESS) {
-                    Log.e(TAG, "语音合成失败,错误码: " + code);
+                    KLog.e(TAG, "语音合成失败,错误码: " + code);
+                    if (ttsListener != null)
+                        ttsListener.onError(new TtsException(code, "xf语音合成失败,错误码: " + code));
                 }
                 break;
         }
     }
 
+    private TtsListener ttsListener;
 
     /**
      * 合成回调监听。
@@ -125,38 +131,41 @@ public class TtsManager {
 
         @Override
         public void onSpeakBegin() {
-            Log.i(TAG, "开始播放");
+            KLog.i(TAG, "开始播放");
         }
 
         @Override
         public void onSpeakPaused() {
-            Log.i(TAG, "暂停播放");
+            KLog.i(TAG, "暂停播放");
         }
 
         @Override
         public void onSpeakResumed() {
-            Log.i(TAG, "继续播放");
+            KLog.i(TAG, "继续播放");
         }
 
         @Override
         public void onBufferProgress(int percent, int beginPos, int endPos,
                                      String info) {
             // 合成进度
-            Log.i(TAG, "合成进度=" + percent);
+            KLog.i(TAG, "合成进度=" + percent);
         }
 
         @Override
         public void onSpeakProgress(int percent, int beginPos, int endPos) {
             // 播放进度
-            Log.i(TAG, "播放进度=" + percent);
+            KLog.i(TAG, "播放进度=" + percent);
         }
 
         @Override
         public void onCompleted(SpeechError error) {
             if (error == null) {
-                Log.i(TAG, "播放完成");
+                KLog.i(TAG, "播放完成");
             } else if (error != null) {
-                Log.i(TAG, error.getPlainDescription(true));
+                if (ttsListener != null) {
+                    ttsListener.onError(new TtsException(1, error.getPlainDescription(true)));
+                }
+                KLog.i(TAG, error.getPlainDescription(true));
             }
         }
 
@@ -172,7 +181,7 @@ public class TtsManager {
             //当设置SpeechConstant.TTS_DATA_NOTIFY为1时，抛出buf数据
 			/*if (SpeechEvent.EVENT_TTS_BUFFER == eventType) {
 						byte[] buf = obj.getByteArray(SpeechEvent.KEY_EVENT_TTS_BUFFER);
-						Log.e("MscSpeechLog", "buf is =" + buf);
+						KLog.e("MscSpeechLog", "buf is =" + buf);
 					}*/
 
         }
@@ -182,7 +191,7 @@ public class TtsManager {
         public void onInit(int code) {
             Log.d(TAG, "InitListener init() code = " + code);
             if (code != ErrorCode.SUCCESS) {
-                Log.e(TAG, "初始化失败,错误码：" + code);
+                KLog.e(TAG, "初始化失败,错误码：" + code);
             } else {
                 // 初始化成功，之后可以调用startSpeaking方法
                 // 注：有的开发者在onCreate方法中创建完合成对象之后马上就调用startSpeaking进行合成，
@@ -223,7 +232,7 @@ public class TtsManager {
     }
 
     private void initBdSynthesizer(String baseDirs) {
-        Log.i(TAG, "initBdSynthesizer");
+        KLog.i(TAG, "initBdSynthesizer");
         String tmpDir = FileUtil.createTmpDir(context, baseDirs);
         // 设置初始化参数
         // 此处可以改为 含有您业务逻辑的SpeechSynthesizerListener的实现类
@@ -269,7 +278,7 @@ public class TtsManager {
         } catch (IOException e) {
             // IO 错误自行处理
             e.printStackTrace();
-            Log.e(TAG, "【error】:copy files from assets failed." + e.getMessage());
+            KLog.e(TAG, "【error】:copy files from assets failed." + e.getMessage());
         }
         return offlineResource;
     }
