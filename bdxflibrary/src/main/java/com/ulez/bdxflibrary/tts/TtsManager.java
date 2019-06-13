@@ -33,9 +33,9 @@ public class TtsManager {
     private int ttsType = 0;
     // 引擎类型
     private String mEngineType = SpeechConstant.TYPE_CLOUD;
-    protected String appId = "11005757";
-    protected String appKey = "Ovcz19MGzIKoDDb3IsFFncG1";
-    protected String secretKey = "e72ebb6d43387fc7f85205ca7e6706e2";
+    protected String appId = "16497560";
+    protected String appKey = "04TI2yM9HfQPSvzfneTtEPuH";
+    protected String secretKey = "nl1r0WVYLPa2bSlGcPojeHxWAc19ZjgY";
     protected TtsMode ttsMode = TtsMode.MIX;
     protected String offlineVoice = OfflineResource.VOICE_MALE;
     protected MySyntherizer bdSynthesizer = null;
