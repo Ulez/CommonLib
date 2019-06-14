@@ -141,6 +141,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onWakeInitError(RuntimeException e) {
                 wakeTextBd.setText(e.getMessage());
             }
+
+            @Override
+            public void onError(Exception error) {
+                Log.e(TAG, "唤醒error" + error.getMessage());
+            }
         });
         ttsManager = TtsManager.getInstance(this, mainHandler, TtsManager.TTS_BD, "bdxfTTS", new TtsListener() {
 

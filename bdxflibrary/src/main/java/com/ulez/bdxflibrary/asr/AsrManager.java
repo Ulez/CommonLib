@@ -54,7 +54,9 @@ public class AsrManager {
     public static final int TYPE_X = 1;//讯飞
     private static AsrManager instance;
     private final Context context;
+    //识别结果回调监听器
     private AsrListener asrListener;
+    //唤醒结果回调监听器
     private WakeListener wakeListener;
     private int asrType = 0;
     private EventManager bdAsr;
@@ -74,6 +76,8 @@ public class AsrManager {
     }
 
     private AsrManager(Context context, int asrType, final AsrListener asrListener, WakeListener wakeListener) {
+        if (asrListener == null && wakeListener == null)
+            throw new RuntimeException("AsrListener and WakeListener could not be null at same time!");
         this.context = context.getApplicationContext();
         this.asrType = asrType;
         this.asrListener = asrListener;
@@ -121,6 +125,7 @@ public class AsrManager {
         bdAsr.registerListener(bdListener);
     }
 
+    //讯飞识别初始化监听器
     private InitListener mInitListener = new InitListener() {
 
         @Override
@@ -128,6 +133,7 @@ public class AsrManager {
             Log.d(TAG, "SpeechRecognizer init() code = " + code);
             if (code != ErrorCode.SUCCESS) {
                 KLog.e(TAG, "初始化失败，错误码：" + code);
+                asrListener.onError(new AsrException(code, "xf初始化失败，错误码：" + code));
             }
         }
     };
@@ -136,7 +142,7 @@ public class AsrManager {
         @Override
         public void onEvent(String name, String params, byte[] data, int offset, int length) {
             try {
-                KLog.e(TAG, "name=" + name + ",,,params=" + params);
+//                KLog.e(TAG, "name=" + name + ",,,params=" + params);
                 try {
                     if (TextUtils.isEmpty(params)) return;
                     JSONObject json = new JSONObject(params);
@@ -183,7 +189,6 @@ public class AsrManager {
         @Override
         public void onBeginOfSpeech() {
             // 此回调表示：sdk内部录音机已经准备好了，用户可以开始语音输入
-            KLog.e(TAG, "开始说话");
             if (mIatResults == null)
                 mIatResults = new LinkedHashMap<String, String>();
             mIatResults.clear();
@@ -199,7 +204,7 @@ public class AsrManager {
                 KLog.e(TAG, error.getPlainDescription(true));
             }
             if (asrListener != null)
-                asrListener.onError(error);
+                asrListener.onError(new AsrException(error.getErrorCode(), error.getPlainDescription(true)));
         }
 
         @Override
@@ -227,9 +232,8 @@ public class AsrManager {
             for (String key : mIatResults.keySet()) {
                 resultBuffer.append(mIatResults.get(key));
             }
-            if (isLast) {
-                if (asrListener != null)
-                    asrListener.onResult(resultBuffer.toString(), true);
+            if (isLast && asrListener != null) {
+                asrListener.onResult(resultBuffer.toString(), true);
             }
         }
 
@@ -293,9 +297,10 @@ public class AsrManager {
                 }
                 ret = mIat.startListening(xfListener);
                 if (ret != ErrorCode.SUCCESS) {
-                    KLog.e(TAG, "听写失败,错误码：" + ret);
+                    KLog.i(TAG, "听写失败,错误码：" + ret);
+                    asrListener.onError(new AsrException(ret, "听写失败,错误码：" + ret));
                 } else {
-                    KLog.e(TAG, "请开始说话…");
+                    KLog.i(TAG, "请开始说话…");
                 }
                 break;
         }
@@ -391,11 +396,13 @@ public class AsrManager {
             } else {
                 resultString = "结果解析出错";
             }
-            wakeListener.onResult(resultString);
+            if (wakeListener != null)
+                wakeListener.onResult(resultString);
         }
 
         @Override
         public void onError(SpeechError error) {
+            wakeListener.onError(new AsrException(error.getErrorCode(), error.getPlainDescription(true)));
             KLog.e(TAG, error.getPlainDescription(true));
         }
 
