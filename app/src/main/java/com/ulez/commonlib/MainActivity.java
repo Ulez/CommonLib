@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,6 +19,7 @@ import com.ulez.bdxflibrary.TtsException;
 import com.ulez.bdxflibrary.asr.AsrListener;
 import com.ulez.bdxflibrary.asr.AsrManager;
 import com.ulez.bdxflibrary.asr.WakeListener;
+import com.ulez.bdxflibrary.nlu.NluManager;
 import com.ulez.bdxflibrary.tts.TtsListener;
 import com.ulez.bdxflibrary.tts.TtsManager;
 
@@ -41,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TtsManager ttsManager;
     private EditText etTts;
     private TextView wakeTextBd;
+    private TextView tvNlu;
+    private EditText etNlu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +58,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
                 handle(msg);
+                switch (msg.what){
+                    case 10086:
+                        tvNlu.setText((String)msg.obj);
+                        break;
+                }
+
             }
 
         };
         textView = findViewById(R.id.result);
+        tvNlu = findViewById(R.id.tv_nlu);
+        etNlu = findViewById(R.id.et_nlu);
         wakeTextBd = findViewById(R.id.textWake_bd);
 
         findViewById(R.id.bt_wake_bd).setOnClickListener(this);
@@ -84,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.bt_tts2_pause).setOnClickListener(this);
         findViewById(R.id.bt_tts2_resume).setOnClickListener(this);
         findViewById(R.id.bt_tts2_stop).setOnClickListener(this);
+        findViewById(R.id.bt_nlu).setOnClickListener(this);
 
         int permission;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -203,6 +216,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.bt_tts_stop:
             case R.id.bt_tts2_stop:
                 ttsManager.stop();
+                break;
+            case R.id.bt_nlu:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String result = NluManager.getInstance().lexer_custom(etNlu.getText().toString());
+                        Log.e(TAG, result);
+                        Message ms=mainHandler.obtainMessage();
+                        ms.obj=result;
+                        ms.what=10086;
+                        mainHandler.sendMessage(ms);
+                    }
+                }).start();
                 break;
         }
     }

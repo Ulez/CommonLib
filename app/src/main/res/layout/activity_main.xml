@@ -1,120 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textWake_bd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="未启动唤醒" />
-
-    <Button
-        android:id="@+id/bt_wake_bd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="百度唤醒" />
-
-    <Button
-        android:id="@+id/bt_wake_xf"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="讯飞唤醒" />
-
-    <TextView
-        android:id="@+id/result"
-        android:layout_width="wrap_content"
-        android:layout_height="22dp"
-        android:layout_marginBottom="8dp"
-        android:text="点击语音识别" />
-
-    <Button
-        android:id="@+id/bt_asr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="百度识别语音" />
-
-    <Button
-        android:id="@+id/bt_asr2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="讯飞识别语音" />
-
-    <EditText
-        android:id="@+id/et_tts"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="面向广大开发者永久免费开放语音合成技术。" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
+
+
+        <TextView
+            android:id="@+id/textWake_bd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="未启动唤醒" />
 
         <Button
-            android:id="@+id/bt_tts"
+            android:id="@+id/bt_wake_bd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="百度唤醒" />
+
+        <Button
+            android:id="@+id/bt_wake_xf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="讯飞唤醒" />
+
+        <TextView
+            android:id="@+id/result"
+            android:layout_width="wrap_content"
+            android:layout_height="22dp"
+            android:layout_marginBottom="8dp"
+            android:text="点击语音识别" />
+
+        <Button
+            android:id="@+id/bt_asr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="百度识别语音" />
+
+        <Button
+            android:id="@+id/bt_asr2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="讯飞识别语音" />
+
+        <EditText
+            android:id="@+id/et_tts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="面向广大开发者永久免费开放语音合成技术。" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/bt_tts"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="tts百度合成播放" />
+
+            <Button
+                android:id="@+id/bt_tts_pause"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="播放暂停" />
+
+            <Button
+                android:id="@+id/bt_tts_resume"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="播放恢复" />
+
+            <Button
+                android:id="@+id/bt_tts_stop"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="停止合成" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/bt_tts2"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="tts讯飞合成播放" />
+
+            <Button
+                android:id="@+id/bt_tts2_pause"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="播放暂停" />
+
+            <Button
+                android:id="@+id/bt_tts2_resume"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="播放恢复" />
+
+            <Button
+                android:id="@+id/bt_tts2_stop"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="停止合成" />
+        </LinearLayout>
+
+
+        <EditText
+            android:id="@+id/et_nlu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ec是一家高科技公司" />
+
+
+        <Button
+            android:id="@+id/bt_nlu"
             style="@style/bt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="tts百度合成播放" />
+            android:text="词法分析-定制" />
 
-        <Button
-            android:id="@+id/bt_tts_pause"
-            style="@style/bt"
+        <TextView
+            android:id="@+id/tv_nlu"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="播放暂停" />
+            android:layout_height="match_parent" />
 
-        <Button
-            android:id="@+id/bt_tts_resume"
-            style="@style/bt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="播放恢复" />
-
-        <Button
-            android:id="@+id/bt_tts_stop"
-            style="@style/bt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="停止合成" />
     </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:id="@+id/bt_tts2"
-            style="@style/bt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="tts讯飞合成播放" />
-
-        <Button
-            android:id="@+id/bt_tts2_pause"
-            style="@style/bt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="播放暂停" />
-
-        <Button
-            android:id="@+id/bt_tts2_resume"
-            style="@style/bt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="播放恢复" />
-
-        <Button
-            android:id="@+id/bt_tts2_stop"
-            style="@style/bt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="停止合成" />
-    </LinearLayout>
-</LinearLayout>
+</ScrollView>
