@@ -69,6 +69,7 @@ public class AsrManager {
     public static AsrManager getInstance(Context context, int asrType, AsrListener asrListener, WakeListener wakeListener) {
         if (instance == null) {
             synchronized (AsrManager.class) {
+                if (instance == null)
                 instance = new AsrManager(context, asrType, asrListener, wakeListener);
             }
         }

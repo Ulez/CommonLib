@@ -130,18 +130,127 @@
             android:layout_height="wrap_content"
             android:text="ec是一家高科技公司" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/bt_lexer"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="词法分析" />
+
+            <Button
+                android:id="@+id/bt_lexerCustom"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="词法分析-定制" />
+
+
+            <Button
+                android:id="@+id/bt_wordEmbedding"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="词向量表示" />
+
+
+            <Button
+                android:id="@+id/bt_dnnlmCn"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DNN语言模型" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/bt_wordSimEmbedding"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="词义相似度" />
+
+            <Button
+                android:id="@+id/bt_simnet"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="短文本相似度" />
+
+            <Button
+                android:id="@+id/bt_commentTag"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="评论观点抽取" />
+
+            <Button
+                android:id="@+id/bt_sentimentClassify"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="情感倾向" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/bt_keyword"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="文章标签" />
+
+            <Button
+                android:id="@+id/bt_topic"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="文章分类" />
+
+            <Button
+                android:id="@+id/bt_ecnet"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="文本纠错" />
+
+            <Button
+                android:id="@+id/bt_emotion"
+                style="@style/bt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="对话情绪" />
+
+
+        </LinearLayout>
 
         <Button
-            android:id="@+id/bt_nlu"
+            android:id="@+id/bt_newsSummary"
             style="@style/bt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="词法分析-定制" />
+            android:text="新闻摘要" />
 
         <TextView
             android:id="@+id/tv_nlu"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-
+            android:layout_height="match_parent"
+            android:text="nlu结果" />
     </LinearLayout>
+
 </ScrollView>

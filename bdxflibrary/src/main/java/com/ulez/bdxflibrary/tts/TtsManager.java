@@ -72,6 +72,7 @@ public class TtsManager {
     public static TtsManager getInstance(Context context, Handler mainHandler, int ttsType, String baseDirs, TtsListener ttsListener) {
         if (instance == null) {
             synchronized (TtsManager.class) {
+                if (instance == null)
                 instance = new TtsManager(context, mainHandler, ttsType, baseDirs, ttsListener);
             }
         }
@@ -103,7 +104,8 @@ public class TtsManager {
                 int result = bdSynthesizer.speak(text);
                 this.ttsType = TTS_BD;
                 if (result != 0) {
-                    KLog.e(TAG, "error code :" + result + " method:speak" + ", 错误码文档:http://yuyin.baidu.com/docs/tts/122 ");
+                    ttsListener.onError(new TtsException(result," method:speak" + ", 错误码文档:http://yuyin.baidu.com/docs/tts/122 "));
+//                    KLog.e(TAG, "error code :" + result + " method:speak" + ", 错误码文档:http://yuyin.baidu.com/docs/tts/122 ");
                 }
                 break;
             case TTS_XF:
@@ -207,7 +209,7 @@ public class TtsManager {
 
     private void checkResult(int result, String method) {
         if (result != 0 && ttsListener != null) {
-            ttsListener.onError(new TtsException(result, " method:" + method + ", 错误码文档:http://yuyin.baidu.com/docs/tts/122 "));
+            ttsListener.onError(new TtsException(result, " method:" + method + ", 错误"));
         }
     }
 
@@ -394,6 +396,7 @@ public class TtsManager {
         } catch (IOException e) {
             // IO 错误自行处理
             e.printStackTrace();
+            ttsListener.onError(new TtsException(43242,"【error】:copy files from assets failed." + e.getMessage()));
             KLog.e(TAG, "【error】:copy files from assets failed." + e.getMessage());
         }
         return offlineResource;
